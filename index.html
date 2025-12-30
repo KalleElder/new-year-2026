@@ -1,0 +1,675 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>New Year 2026</title>
+  <style>
+    :root{
+      --bg0:#05060a;
+      --bg1:#070a12;
+      --gold:#d6b35f;
+      --silver:#cfd6df;
+      --neon:#3bbcff;
+      --stroke:rgba(255,255,255,.12);
+      --text:rgba(245,248,255,.92);
+      --muted:rgba(245,248,255,.72);
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(900px 500px at 50% 20%, rgba(59,188,255,.14) 0%, rgba(59,188,255,0) 60%),
+        radial-gradient(1200px 700px at 50% 100%, rgba(214,179,95,.09) 0%, rgba(214,179,95,0) 55%),
+        linear-gradient(180deg, var(--bg1), var(--bg0));
+      overflow:hidden;
+    }
+
+    #fx{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      z-index:0;
+    }
+
+    .stage{
+      position:relative;
+      z-index:1;
+      min-height:100%;
+      display:grid;
+      place-items:center;
+      padding:24px;
+    }
+
+    .card{
+      position:relative;
+      width:min(760px, 94vw);
+      padding:52px 34px 28px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--stroke);
+      border-radius:18px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 18px 80px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.06);
+      overflow:hidden;
+    }
+
+    .frame{
+      position:absolute;
+      inset:16px;
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:12px;
+      pointer-events:none;
+    }
+
+    .topbar{
+      position:absolute;
+      top:12px;
+      left:12px;
+      right:12px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      z-index:2;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      backdrop-filter: blur(8px);
+      color: rgba(245,248,255,.90);
+      font-size:13px;
+      user-select:none;
+      white-space:nowrap;
+    }
+
+    .btn{
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.05);
+      color: rgba(245,248,255,.92);
+      padding:10px 12px;
+      border-radius:999px;
+      font-weight:700;
+      font-size:13px;
+      transition: transform .08s ease, background .2s ease, border-color .2s ease;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .btn:hover{ background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.20); }
+    .btn:active{ transform: translateY(1px) scale(.99); }
+
+    .title{
+      margin: 0 0 10px;
+      text-align:center;
+      letter-spacing:.4px;
+      font-weight:900;
+      font-size: clamp(26px, 4vw, 44px);
+      color: rgba(207,214,223,.92);
+      text-shadow: 0 0 18px rgba(207,214,223,.10);
+    }
+
+    .countdown{
+      margin: 6px 0 10px;
+      text-align:center;
+      font-weight:900;
+      font-size: clamp(30px, 6vw, 60px);
+      letter-spacing: 2px;
+      color: rgba(214,179,95,.96);
+      text-shadow: 0 0 18px rgba(214,179,95,.18), 0 0 40px rgba(59,188,255,.10);
+      min-height: 70px;
+      display:grid;
+      place-items:center;
+      position:relative;
+    }
+
+    .pulse{ animation: pulse .55s ease-in-out; }
+
+    /* BCU25D effects */
+    .codeFX{
+      display:inline-block;
+      letter-spacing:4px;
+      color: rgba(59,188,255,.98);
+      text-shadow: 0 0 16px rgba(59,188,255,.45), 0 0 45px rgba(214,179,95,.12);
+      position:relative;
+      animation: shake .55s ease-in-out infinite;
+      will-change: transform, filter;
+    }
+    .codeFX::before,
+    .codeFX::after{
+      content: attr(data-text);
+      position:absolute;
+      left:0; top:0;
+      width:100%;
+      overflow:hidden;
+      pointer-events:none;
+      mix-blend-mode: screen;
+    }
+    .codeFX::before{
+      color: rgba(214,179,95,.85);
+      transform: translate(2px,-1px);
+      clip-path: inset(0 0 55% 0);
+      animation: glitchA .7s steps(2,end) infinite;
+      opacity:.85;
+    }
+    .codeFX::after{
+      color: rgba(207,214,223,.90);
+      transform: translate(-2px,1px);
+      clip-path: inset(50% 0 0 0);
+      animation: glitchB .55s steps(2,end) infinite;
+      opacity:.85;
+    }
+
+    .codeFX.explode{
+      animation: impact .35s ease-out 1, shake .55s ease-in-out infinite;
+      filter: saturate(1.15) brightness(1.06);
+    }
+
+    .shard{
+      position:absolute;
+      left:50%;
+      top:50%;
+      width:10px;
+      height:2px;
+      background: rgba(245,248,255,.92);
+      transform-origin: left center;
+      filter: drop-shadow(0 0 10px rgba(59,188,255,.22));
+      pointer-events:none;
+      animation: shardFly .55s ease-out forwards;
+    }
+
+    .year-wrap{
+      position:relative;
+      display:grid;
+      place-items:center;
+      padding: 10px 0 6px;
+    }
+    .year{
+      position:relative;
+      height: 118px;
+      display:grid;
+      place-items:center;
+    }
+    .y{
+      position:absolute;
+      font-weight:900;
+      font-size: clamp(64px, 10vw, 112px);
+      letter-spacing:2px;
+      line-height:1;
+      text-shadow: 0 0 18px rgba(59,188,255,.16), 0 0 32px rgba(214,179,95,.08);
+    }
+    .y-old{ color: rgba(207,214,223,.35); opacity:1; }
+    .y-new{
+      color: rgba(214,179,95,.95);
+      opacity:0;
+      transform: translateY(22px) scale(.94);
+      filter: blur(1px);
+      text-shadow: 0 0 18px rgba(214,179,95,.18), 0 0 40px rgba(59,188,255,.10);
+    }
+    .flip .y-old{ animation: oldOut 1.15s ease forwards; }
+    .flip .y-new{ animation: newIn 1.05s cubic-bezier(.2,.9,.2,1) forwards; animation-delay: .12s; }
+
+    .sub{
+      margin: 10px 0 0;
+      text-align:center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .glow-line{
+      position:absolute;
+      left:-20%;
+      right:-20%;
+      bottom:-2px;
+      height:3px;
+      background: linear-gradient(90deg, transparent, rgba(59,188,255,.55), rgba(214,179,95,.50), transparent);
+      filter: blur(1px);
+      animation: sweep 3.8s linear infinite;
+    }
+
+    @keyframes pulse{
+      0%{ transform: scale(.92); opacity:.7 }
+      60%{ transform: scale(1.06); opacity:1 }
+      100%{ transform: scale(1); opacity:1 }
+    }
+    @keyframes oldOut{
+      0%{ opacity:1; transform:translateY(0) scale(1); filter:blur(0px); }
+      100%{ opacity:0; transform:translateY(-18px) scale(1.03); filter:blur(2px); }
+    }
+    @keyframes newIn{
+      0%{ opacity:0; transform:translateY(18px) scale(.95); filter:blur(1px); }
+      100%{ opacity:1; transform:translateY(0) scale(1); filter:blur(0px); }
+    }
+    @keyframes sweep{
+      0%{ transform: translateX(-20%) }
+      100%{ transform: translateX(20%) }
+    }
+    @keyframes shake{
+      0%{ transform: translate(0,0) rotate(0deg); }
+      15%{ transform: translate(-2px, 1px) rotate(-0.4deg); }
+      30%{ transform: translate(2px, -1px) rotate(0.4deg); }
+      45%{ transform: translate(-1px, -2px) rotate(-0.2deg); }
+      60%{ transform: translate(2px, 2px) rotate(0.3deg); }
+      75%{ transform: translate(-2px, 0px) rotate(-0.3deg); }
+      100%{ transform: translate(0,0) rotate(0deg); }
+    }
+    @keyframes glitchA{
+      0%{ transform: translate(2px,-1px); clip-path: inset(0 0 55% 0); }
+      50%{ transform: translate(4px,0px); clip-path: inset(0 0 35% 0); }
+      100%{ transform: translate(1px,-2px); clip-path: inset(0 0 62% 0); }
+    }
+    @keyframes glitchB{
+      0%{ transform: translate(-2px,1px); clip-path: inset(45% 0 0 0); }
+      50%{ transform: translate(-5px,2px); clip-path: inset(60% 0 0 0); }
+      100%{ transform: translate(-1px,0px); clip-path: inset(50% 0 0 0); }
+    }
+
+    @keyframes impact{
+      0%{ transform: translate(0,0) scale(1); filter: blur(0px); }
+      60%{ transform: translate(0,-2px) scale(1.14); filter: blur(.2px); }
+      100%{ transform: translate(0,0) scale(1); filter: blur(0px); }
+    }
+
+    @keyframes shardFly{
+      0%{ opacity:0; transform: translate(-50%,-50%) rotate(var(--a)) scaleX(.4); }
+      15%{ opacity:1; }
+      100%{
+        opacity:0;
+        transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--a)) scaleX(1.2);
+      }
+    }
+
+    @media (max-width:420px){
+      .card{ padding:54px 18px 22px; }
+      .frame{ inset:12px; }
+      .topbar{ top:10px; left:10px; right:10px; }
+      .chip, .btn{ padding:9px 10px; font-size:12px; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="fx"></canvas>
+
+  <main class="stage">
+    <div class="card">
+      <div class="frame"></div>
+
+      <div class="topbar">
+        <div class="chip"><span id="status">Starting</span></div>
+        <button class="btn" id="soundBtn" type="button">Sound: OFF</button>
+      </div>
+
+      <h1 class="title">Happy New Year</h1>
+
+      <div class="countdown" id="countdown" aria-live="polite"></div>
+
+      <div class="year-wrap" id="yearWrap" aria-label="Year animation">
+        <div class="year">
+          <span class="y y-old" id="oldYear">2025</span>
+          <span class="y y-new" id="newYear">2026</span>
+        </div>
+      </div>
+
+      <p class="sub">Click anywhere for fireworks</p>
+      <div class="glow-line"></div>
+    </div>
+  </main>
+
+  <script>
+    /* -------------------------
+       Fireworks (lightweight)
+    -------------------------- */
+
+    const canvas = document.getElementById("fx");
+    const ctx = canvas.getContext("2d");
+
+    let W, H, DPR;
+
+    function resize() {
+      DPR = Math.min(window.devicePixelRatio || 1, 1.25);
+      W = Math.floor(window.innerWidth);
+      H = Math.floor(window.innerHeight);
+      canvas.width = Math.floor(W * DPR);
+      canvas.height = Math.floor(H * DPR);
+      canvas.style.width = W + "px";
+      canvas.style.height = H + "px";
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    const rand = (a, b) => Math.random() * (b - a) + a;
+
+    class Particle {
+      constructor(x, y, vx, vy, life, hue, size, gravity = 0.055) {
+        this.x = x; this.y = y;
+        this.vx = vx; this.vy = vy;
+        this.life = life;
+        this.maxLife = life;
+        this.hue = hue;
+        this.size = size;
+        this.gravity = gravity;
+        this.friction = 0.988;
+      }
+      step() {
+        this.vx *= this.friction;
+        this.vy *= this.friction;
+        this.vy += this.gravity;
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life -= 1;
+      }
+      draw() {
+        const t = this.life / this.maxLife;
+        const alpha = Math.max(0, t);
+
+        ctx.beginPath();
+        ctx.fillStyle = `hsla(${this.hue}, 100%, 65%, ${alpha})`;
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = `hsla(${this.hue}, 100%, 70%, ${alpha})`;
+        ctx.arc(this.x, this.y, this.size * (0.7 + 0.5 * (1 - t)), 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+    }
+
+    class Rocket {
+      constructor(x, y, targetX, targetY) {
+        this.x = x; this.y = y;
+        const dx = targetX - x;
+        const dy = targetY - y;
+        const dist = Math.max(100, Math.hypot(dx, dy));
+        this.vx = (dx / dist) * rand(6, 8.5);
+        this.vy = (dy / dist) * rand(6, 8.5);
+        this.hue = rand(0, 360);
+        this.trail = [];
+        this.alive = true;
+      }
+      step() {
+        this.trail.push({ x: this.x, y: this.y });
+        if (this.trail.length > 10) this.trail.shift();
+
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vy += 0.014;
+        this.vx *= 0.996;
+
+        if (this.vy > -0.15 || this.y < rand(H * 0.20, H * 0.50)) {
+          this.alive = false;
+          explode(this.x, this.y, this.hue);
+        }
+      }
+      draw() {
+        for (let i = 0; i < this.trail.length; i++) {
+          const p = this.trail[i];
+          const a = i / this.trail.length;
+          ctx.fillStyle = `hsla(${this.hue}, 100%, 70%, ${a * 0.28})`;
+          ctx.fillRect(p.x, p.y, 2, 2);
+        }
+        ctx.beginPath();
+        ctx.fillStyle = `hsla(${this.hue}, 100%, 70%, 0.92)`;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = `hsla(${this.hue}, 100%, 70%, 0.6)`;
+        ctx.arc(this.x, this.y, 2.0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+    }
+
+    const rockets = [];
+    const particles = [];
+
+    function explode(x, y, hue) {
+      const count = Math.floor(rand(32, 56));
+      const spread = rand(2.8, 5.0);
+
+      const palette = [40, 205, 200]; 
+
+      for (let i = 0; i < count; i++) {
+        const a = (Math.PI * 2) * (i / count) + rand(-0.06, 0.06);
+        const sp = rand(1.2, spread);
+        const picked = palette[(Math.random() * palette.length) | 0] + rand(-10, 10);
+
+        particles.push(new Particle(
+          x, y,
+          Math.cos(a) * sp,
+          Math.sin(a) * sp,
+          Math.floor(rand(42, 70)),
+          (hue != null ? hue : picked),
+          rand(0.9, 1.8)
+        ));
+      }
+
+      const glitter = Math.floor(rand(8, 14));
+      for (let i = 0; i < glitter; i++) {
+        particles.push(new Particle(
+          x, y,
+          rand(-0.9, 0.9),
+          rand(-0.9, 0.9),
+          Math.floor(rand(16, 26)),
+          205,
+          rand(0.6, 1.1),
+          0.02
+        ));
+      }
+
+      const MAX = 1000;
+      if (particles.length > MAX) particles.splice(0, particles.length - MAX);
+    }
+
+    function launch(x = rand(W * 0.15, W * 0.85), y = H + 20) {
+      const tx = x + rand(-120, 120);
+      const ty = rand(H * 0.20, H * 0.50);
+      rockets.push(new Rocket(x, y, tx, ty));
+    }
+
+    function multiLaunch(x, n = 2) {
+      for (let i = 0; i < n; i++) launch(x + rand(-80, 80), H + 20);
+    }
+
+    function loop() {
+      ctx.fillStyle = "rgba(5, 6, 10, 0.25)";
+      ctx.fillRect(0, 0, W, H);
+
+      for (let i = rockets.length - 1; i >= 0; i--) {
+        const r = rockets[i];
+        r.step();
+        r.draw();
+        if (!r.alive) rockets.splice(i, 1);
+      }
+
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.step();
+        p.draw();
+        if (p.life <= 0) particles.splice(i, 1);
+      }
+
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+
+    window.addEventListener("pointerdown", (e) => {
+      multiLaunch(e.clientX, 2);
+      playPop();
+    });
+
+    /* -------------------------
+       Sound toggle
+    -------------------------- */
+
+    const soundBtn = document.getElementById("soundBtn");
+    let soundOn = false;
+    let audioCtx = null;
+
+    function ensureAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+    }
+
+    function setSound(on) {
+      soundOn = on;
+      soundBtn.textContent = on ? "Sound: ON" : "Sound: OFF";
+      if (on) ensureAudio();
+    }
+
+    soundBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      setSound(!soundOn);
+      if (soundOn) playPop();
+    });
+
+    function beep(freq = 820, dur = 0.07, type = "triangle", gain = 0.045) {
+      if (!soundOn) return;
+      ensureAudio();
+      const t0 = audioCtx.currentTime;
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(freq, t0);
+      g.gain.setValueAtTime(gain, t0);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(g);
+      g.connect(audioCtx.destination);
+      o.start(t0);
+      o.stop(t0 + dur);
+    }
+
+    function noiseBurst(dur = 0.10, gain = 0.07) {
+      if (!soundOn) return;
+      ensureAudio();
+      const t0 = audioCtx.currentTime;
+      const bufferSize = Math.floor(audioCtx.sampleRate * dur);
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+
+      const src = audioCtx.createBufferSource();
+      src.buffer = buffer;
+
+      const g = audioCtx.createGain();
+      g.gain.setValueAtTime(gain, t0);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+
+      const f = audioCtx.createBiquadFilter();
+      f.type = "highpass";
+      f.frequency.setValueAtTime(900, t0);
+
+      src.connect(f);
+      f.connect(g);
+      g.connect(audioCtx.destination);
+      src.start(t0);
+      src.stop(t0 + dur);
+    }
+
+    function playTick() { beep(760, 0.06, "triangle", 0.04); }
+    function playPop()  { noiseBurst(0.09, 0.06); beep(220, 0.05, "sine", 0.02); }
+    function playBoom() { noiseBurst(0.18, 0.10); beep(120, 0.16, "sine", 0.055); setTimeout(() => beep(180, 0.10, "triangle", 0.03), 55); }
+
+    /* -------------------------
+       Countdown + Code moment
+    -------------------------- */
+
+    const statusEl = document.getElementById("status");
+    const countdownEl = document.getElementById("countdown");
+    const yearWrap = document.getElementById("yearWrap");
+    const oldYear = document.getElementById("oldYear");
+    const newYear = document.getElementById("newYear");
+
+    oldYear.textContent = "2025";
+    newYear.textContent = "2026";
+
+    let count = 10;
+    statusEl.textContent = "Countdown";
+
+    function renderCount(n) {
+      countdownEl.innerHTML = `<span class="pulse">${n}</span>`;
+    }
+
+    function spawnShards() {
+      const shards = 14;
+      for (let i = 0; i < shards; i++) {
+        const s = document.createElement("span");
+        s.className = "shard";
+        s.style.setProperty("--a", rand(0, 360) + "deg");
+        s.style.setProperty("--dx", (Math.cos((i / shards) * Math.PI * 2) * rand(55, 125)) + "px");
+        s.style.setProperty("--dy", (Math.sin((i / shards) * Math.PI * 2) * rand(40, 95)) + "px");
+        countdownEl.appendChild(s);
+        setTimeout(() => s.remove(), 650);
+      }
+    }
+
+    function showCode() {
+      countdownEl.innerHTML = `<span id="codeFX" class="codeFX" data-text="BCU25D">BCU25D</span>`;
+      const code = document.getElementById("codeFX");
+      requestAnimationFrame(() => {
+        code.classList.add("explode");  
+        spawnShards();
+      });
+    }
+
+    renderCount(count);
+
+    let autoTimer = null;
+
+    function startSequence() {
+      autoTimer = setInterval(() => {
+        if (Math.random() < 0.22) launch();
+      }, 520);
+
+      const timer = setInterval(() => {
+        renderCount(count);
+        playTick();
+
+        if (Math.random() < 0.85) launch(rand(W * 0.25, W * 0.75), H + 20);
+
+        if (count <= 0) {
+          clearInterval(timer);
+          moment();
+        }
+        count -= 1;
+      }, 1000);
+    }
+
+    function moment() {
+      statusEl.textContent = "New Year";
+      showCode();
+      playBoom();
+
+      const bursts = 14;
+      for (let i = 0; i < bursts; i++) {
+        setTimeout(() => multiLaunch(rand(W * 0.18, W * 0.82), 2), i * 90);
+      }
+
+    
+      const HOLD_CODE_MS = 1600; 
+
+      setTimeout(() => {
+        yearWrap.classList.add("flip");
+      }, HOLD_CODE_MS);
+
+      setTimeout(() => {
+        clearInterval(autoTimer);
+        autoTimer = setInterval(() => {
+          if (Math.random() < 0.10) launch();
+        }, 850);
+      }, 3200);
+
+      setTimeout(() => {
+        countdownEl.innerHTML = `<span class="pulse">2026</span>`;
+      }, HOLD_CODE_MS + 900);
+    }
+
+    setTimeout(startSequence, 450);
+  </script>
+</body>
+</html>
